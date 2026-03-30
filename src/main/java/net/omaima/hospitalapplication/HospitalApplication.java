@@ -5,6 +5,7 @@ import net.omaima.hospitalapplication.repositories.ConsultationRepository;
 import net.omaima.hospitalapplication.repositories.MedecinRepository;
 import net.omaima.hospitalapplication.repositories.PatientRepository;
 import net.omaima.hospitalapplication.repositories.RendezVousRepository;
+import net.omaima.hospitalapplication.service.IHospitalService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,7 @@ public class HospitalApplication {
     }
 
     @Bean
-    CommandLineRunner start(PatientRepository patientRepository, MedecinRepository medecinRepository, RendezVousRepository rendezVousRepository, ConsultationRepository consultationRepository) {
+    CommandLineRunner start(IHospitalService hospitalService, PatientRepository patientRepository, RendezVousRepository rendezVousRepository, ConsultationRepository consultationRepository, MedecinRepository medecinRepository) {
         return args -> {
             Stream.of("Soumia", "Hassan", "Omaima")
                     .forEach(name -> {
@@ -30,7 +31,7 @@ public class HospitalApplication {
                         patient.setNom(name);
                         patient.setMalade(false);
                         patient.setDateNaissance(new Date());
-                        patientRepository.save(patient);
+                        hospitalService.savePatient(patient);
                     });
 
             Stream.of("Aymen", "Zindoug", "Khalid")
@@ -39,7 +40,7 @@ public class HospitalApplication {
                         medecin.setNom(name);
                         medecin.setEmail(name+"@gmail.com");
                         medecin.setSpecialite(Math.random() > 0.5 ? "Cardio":"Dentiste");
-                        medecinRepository.save(medecin);
+                        hospitalService.saveMedecin(medecin);
                     });
             Patient patient = patientRepository.findById(1L).orElse(null);
             Patient patient1 = patientRepository.findByNom("Hassan");
@@ -51,14 +52,14 @@ public class HospitalApplication {
             rendezVous.setStatus(StatusRDV.PENDING);
             rendezVous.setMedecin(medecin);
             rendezVous.setPatient(patient);
-            rendezVousRepository.save(rendezVous);
+            hospitalService.saveRendezVous(rendezVous);
 
             RendezVous rendezVous1=rendezVousRepository.findById(1L).orElse(null);
             Consultation consultation=new Consultation();
             consultation.setDateConsultation(new Date());
             consultation.setRendezVous(rendezVous1);
             consultation.setRapport("Rapport de la consultion .....");
-            consultationRepository.save(consultation);
+            hospitalService.saveConsultation(consultation);
 
         };
     }
